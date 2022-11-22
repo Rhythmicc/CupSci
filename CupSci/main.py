@@ -7,16 +7,19 @@ rt_url = "https://webvpn.cup.edu.cn"
 
 
 @app.command()
-def dl():
+def dl(url: str = ""):
     """
     下载论文
+
+    :param url: 论文链接
     """
     import re
     import time
     from . import _ask as ask
     from selenium.webdriver.common.by import By
 
-    url = ask({"type": "input", "message": "请输入论文链接: "})
+    if not url:
+        url = ask({"type": "input", "message": "请输入论文链接"})
 
     status = QproDefaultConsole.status("打开浏览器")
     status.start()
