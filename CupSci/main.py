@@ -19,7 +19,17 @@ def dl(url: str = ""):
     from selenium.webdriver.common.by import By
 
     if not url:
-        url = ask({"type": "input", "message": "请输入论文链接"})
+        try:
+            default = requirePackage("pyperclip", "paste")()
+        except:
+            default = ""
+        url = ask(
+            {
+                "type": "input",
+                "message": "请输入论文链接",
+                "default": default,
+            }
+        )
 
     status = QproDefaultConsole.status("打开浏览器")
     status.start()
@@ -80,7 +90,7 @@ def dl(url: str = ""):
         if is_acm_paper
         else f"https/{url_hash}/stamp/stamp.jsp?tp=&arnumber={arnumber}"
     )
-    QproDefaultConsole.print(QproInfoString, part_url)
+    # QproDefaultConsole.print(QproInfoString, part_url)
 
     status.update("关闭浏览器")
     closeDriver()
