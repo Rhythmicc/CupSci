@@ -104,7 +104,7 @@ def dl(url: str = ""):
     if not os.path.exists(year_dir):
         os.mkdir(year_dir)
 
-    path = os.path.join(year_dir, f"{title}.pdf")
+    path = os.path.join(year_dir, f"{title.replace('/', '-')}.pdf")
     if os.path.exists(path):
         status.stop()
         QproDefaultConsole.print(QproInfoString, "文件已存在")
