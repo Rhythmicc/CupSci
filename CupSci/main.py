@@ -2,7 +2,7 @@ from QuickProject.Commander import Commander
 from . import *
 
 
-app = Commander("cup-sci")
+app = Commander(executable_name)
 rt_url = "https://webvpn.cup.edu.cn"
 
 

@@ -1,3 +1,4 @@
+from CupSci import name, executable_name
 from setuptools import setup, find_packages
 
 with open("README.md", "r") as fh:
@@ -5,7 +6,7 @@ with open("README.md", "r") as fh:
 VERSION = "0.0.1"
 
 setup(
-    name="CupSci",
+    name=name,
     version=VERSION,
     description="A tool to download papers from CUP Web VPN using selenium",
     long_description=long_description,
@@ -25,7 +26,7 @@ setup(
     install_requires=["Qpro", "selenium", "QuickStart_Rhy"],
     entry_points={
         "console_scripts": [
-            "cup-sci = CupSci.main:main",
+            f"{executable_name} = CupSci.main:main",
         ]
     },
 )

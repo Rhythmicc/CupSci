@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 name = "CupSci"
+executable_name = "cup-sci"
 
 from .__config__ import *
 
