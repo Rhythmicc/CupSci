@@ -21,6 +21,8 @@ def dl(url: str = ""):
     if not url:
         try:
             default = requirePackage("pyperclip", "paste")()
+            if not default.startswith("http://") and not default.startswith("https://"):
+                default = ""
         except:
             default = ""
         url = ask(
