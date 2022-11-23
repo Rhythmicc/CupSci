@@ -6,6 +6,24 @@ app = Commander(executable_name)
 rt_url = "https://webvpn.cup.edu.cn"
 
 
+def getUrl():
+    try:
+        default = requirePackage("pyperclip", "paste")()
+        if not default.startswith("http://") and not default.startswith("https://"):
+            default = ""
+    except:
+        default = ""
+    from . import _ask as ask
+
+    return ask(
+        {
+            "type": "input",
+            "message": "请输入论文链接",
+            "default": default,
+        }
+    )
+
+
 @app.command()
 def dl(url: str = ""):
     """
@@ -15,23 +33,10 @@ def dl(url: str = ""):
     """
     import re
     import time
-    from . import _ask as ask
     from selenium.webdriver.common.by import By
 
     if not url:
-        try:
-            default = requirePackage("pyperclip", "paste")()
-            if not default.startswith("http://") and not default.startswith("https://"):
-                default = ""
-        except:
-            default = ""
-        url = ask(
-            {
-                "type": "input",
-                "message": "请输入论文链接",
-                "default": default,
-            }
-        )
+        url = getUrl()
 
     status = QproDefaultConsole.status("打开浏览器")
     status.start()
@@ -112,13 +117,21 @@ def dl(url: str = ""):
         QproDefaultConsole.print(QproInfoString, "文件已存在")
         return
 
-    requirePackage("QuickStart_Rhy.NetTools.NormalDL", "normal_dl", "QuickStart_Rhy")(
-        f"{rt_url}/{part_url}",
-        path,
-        disableStatus=True,
-    )
+    try:
+        requirePackage(
+            "QuickStart_Rhy.NetTools.NormalDL", "normal_dl", "QuickStart_Rhy"
+        )(
+            f"{rt_url}/{part_url}",
+            path,
+            disableStatus=True,
+        )
+        QproDefaultConsole.print(QproInfoString, f'下载完成: "{path}"')
+    except Exception as e:
+        status.stop()
+        QproDefaultConsole.print(QproErrorString, e)
+        QproDefaultConsole.print(QproInfoString, f"{rt_url}/{part_url}")
+        return
     status.stop()
-    QproDefaultConsole.print(QproInfoString, f'下载完成: "{path}"')
 
 
 @app.command()
