@@ -97,7 +97,6 @@ def dl(url: str = ""):
         if is_acm_paper
         else f"https/{url_hash}/stamp/stamp.jsp?tp=&arnumber={arnumber}"
     )
-    # QproDefaultConsole.print(QproInfoString, part_url)
 
     status.update("关闭浏览器")
     closeDriver()
