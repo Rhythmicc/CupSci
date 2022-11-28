@@ -25,11 +25,12 @@ def getUrl():
 
 
 @app.command()
-def dl(url: str = ""):
+def dl(url: str = "", folder: str = ""):
     """
     下载论文
 
     :param url: 论文链接
+    :param folder: 保存目录
     """
     import re
     import time
@@ -102,13 +103,16 @@ def dl(url: str = ""):
     closeDriver()
     status.update("下载论文")
 
-    work_path = config.select("work_path")
-    meeting_dir = os.path.join(work_path, meeting)
-    if not os.path.exists(meeting_dir):
-        os.mkdir(meeting_dir)
-    year_dir = os.path.join(meeting_dir, year)
-    if not os.path.exists(year_dir):
-        os.mkdir(year_dir)
+    if not folder:
+        work_path = config.select("work_path")
+        meeting_dir = os.path.join(work_path, meeting)
+        if not os.path.exists(meeting_dir):
+            os.mkdir(meeting_dir)
+        year_dir = os.path.join(meeting_dir, year)
+        if not os.path.exists(year_dir):
+            os.mkdir(year_dir)
+    else:
+        year_dir = folder.replace("~", user_root)
 
     path = os.path.join(year_dir, f"{title.replace('/', '-')}.pdf")
     if os.path.exists(path):
