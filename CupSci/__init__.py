@@ -10,7 +10,14 @@ if enable_config:
     config = CupSciConfig()
 
 import sys
-from QuickProject import user_pip, _ask, external_exec, QproErrorString, QproWarnString
+from QuickProject import (
+    user_pip,
+    _ask,
+    external_exec,
+    QproErrorString,
+    QproWarnString,
+    QproDefaultStatus,
+)
 from selenium import webdriver
 
 
@@ -47,9 +54,7 @@ def requirePackage(
                 "default": True,
             }
         ):
-            with QproDefaultConsole.status(
-                "Installing..." if user_lang != "zh" else "正在安装..."
-            ):
+            with QproDefaultStatus("Installing..." if user_lang != "zh" else "正在安装..."):
                 external_exec(
                     f"{set_pip} install {pname if not real_name else real_name} -U",
                     True,
@@ -77,9 +82,8 @@ def getLocalDriver():
     global _driver
 
     if _driver is None:
-        # headless
         options = webdriver.ChromeOptions()
-        options.add_argument("--headless")
+        # options.add_argument("--headless")
         _driver = webdriver.Chrome(options=options)
     return _driver
 
@@ -100,7 +104,6 @@ def getDriver():
         return getRemoteDriver()
     else:
         return getLocalDriver()
-    # return getLocalDriver()
 
 
 def closeDriver():

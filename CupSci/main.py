@@ -39,14 +39,13 @@ def dl(url: str = "", folder: str = ""):
     if not url:
         url = getUrl()
 
-    status = QproDefaultConsole.status("打开浏览器")
-    status.start()
+    QproDefaultStatus("打开浏览器").start()
     driver = getDriver()
-    status.update("正在获取真实链接")
+    QproDefaultStatus.update("正在获取真实链接")
     driver.get(url)
     url = driver.current_url
 
-    status.update("判断页面类型")
+    QproDefaultStatus.update("判断页面类型")
 
     try:
         is_acm_paper = (
@@ -57,7 +56,7 @@ def dl(url: str = "", folder: str = ""):
         is_acm_paper = False
 
     if is_acm_paper:
-        status.update("正在解析ACM论文信息")
+        QproDefaultStatus.update("正在解析ACM论文信息")
         doi = "/".join(url.split("/")[-2:])
         title = driver.find_element(By.CLASS_NAME, "citation__title").text.replace(
             ": ", "："
@@ -71,7 +70,7 @@ def dl(url: str = "", folder: str = ""):
             .split()[-1]
         )
     else:
-        status.update("正在解析IEEE论文信息")
+        QproDefaultStatus.update("正在解析IEEE论文信息")
         arnumber = url.split("/")[-1]
         title = driver.find_element(
             By.XPATH,
@@ -85,7 +84,7 @@ def dl(url: str = "", folder: str = ""):
         meeting = _info.split()[-1][1:-1]
         year = _info.split()[0]
 
-    status.update("正在查询论文哈希值")
+    QproDefaultStatus.update("正在查询论文哈希值")
     driver.get(rt_url)
     js = f'return encrypUrl("https", "{url}")'
 
@@ -99,9 +98,9 @@ def dl(url: str = "", folder: str = ""):
         else f"https/{url_hash}/stamp/stamp.jsp?tp=&arnumber={arnumber}"
     )
 
-    status.update("关闭浏览器")
+    QproDefaultStatus.update("关闭浏览器")
     closeDriver()
-    status.update("下载论文")
+    QproDefaultStatus.update("下载论文")
 
     if not folder:
         work_path = config.select("work_path")
@@ -115,26 +114,19 @@ def dl(url: str = "", folder: str = ""):
         year_dir = folder.replace("~", user_root)
 
     path = os.path.join(year_dir, f"{title.replace('/', '-')}.pdf")
-    if os.path.exists(path):
-        status.stop()
-        QproDefaultConsole.print(QproInfoString, "文件已存在")
-        return
 
     try:
         requirePackage(
             "QuickStart_Rhy.NetTools.NormalDL", "normal_dl", "QuickStart_Rhy"
-        )(
-            f"{rt_url}/{part_url}",
-            path,
-            disableStatus=True,
-        )
+        )(f"{rt_url}/{part_url}", path)
+
         QproDefaultConsole.print(QproInfoString, f'下载完成: "{path}"')
     except Exception as e:
-        status.stop()
+        QproDefaultStatus.stop()
         QproDefaultConsole.print(QproErrorString, e)
         QproDefaultConsole.print(QproInfoString, f"{rt_url}/{part_url}")
         return
-    status.stop()
+    QproDefaultStatus.stop()
 
 
 @app.command()
