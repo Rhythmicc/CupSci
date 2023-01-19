@@ -1,4 +1,4 @@
-<h1 style="text-align: center"> CupSci </h1>
+# CupSci
 
 通过 CUP webvpn 下载文献。需要配置 selenium，支持使用远程的 selenium 服务，或者本机配置 Chromium。(仅支持在校园网环境中下载)
 
