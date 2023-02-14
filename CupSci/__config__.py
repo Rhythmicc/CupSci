@@ -6,18 +6,14 @@ enable_config = True
 config_path = os.path.join(user_root, ".CupSci_config")
 
 questions = {
-    "remote_url": {
-        "type": "input",
-        "message": "Please enter the remote url of selenium: "
-        if user_lang != "zh"
-        else "请输入selenium的远程地址: ",
-    },
     "work_path": {
         "type": "input",
         "message": "Please enter the work path of sci-hub: "
         if user_lang != "zh"
         else "请输入cup-sci的工作路径: ",
     },
+    "username": {"type": "input", "message": "Please enter your webvpn username: "},
+    "password": {"type": "password", "message": "Please enter your webvpn password: "},
 }
 
 

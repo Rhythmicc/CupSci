@@ -2,7 +2,7 @@ from QuickProject.Commander import Commander
 from . import *
 
 
-app = Commander(executable_name)
+app = Commander(executable_name, seg_flag=True)
 rt_url = "https://webvpn.cup.edu.cn"
 
 
@@ -18,19 +18,20 @@ def getUrl():
     return ask(
         {
             "type": "input",
-            "message": "请输入论文链接",
+            "message": "请输入论文链接 / DOI",
             "default": default,
         }
     )
 
 
 @app.command()
-def dl(url: str = "", folder: str = ""):
+def dl(url: str = "", folder: str = "", auto_login: bool = False):
     """
     下载论文
 
     :param url: 论文链接
     :param folder: 保存目录
+    :param auto_login: 自动登录
     """
     import re
     import time
@@ -38,6 +39,8 @@ def dl(url: str = "", folder: str = ""):
 
     if not url:
         url = getUrl()
+        if not (url.startswith("http://") or url.startswith("https://")):
+            url = "https://www.doi.org/" + url
 
     QproDefaultStatus("打开浏览器").start()
     driver = getDriver()
@@ -61,9 +64,7 @@ def dl(url: str = "", folder: str = ""):
         title = driver.find_element(By.CLASS_NAME, "citation__title").text.replace(
             ": ", "："
         )
-        meeting = driver.find_element(
-            By.CLASS_NAME, "epub-section__title"
-        ).text.split()[0]
+        meeting = driver.find_element(By.CLASS_NAME, "epub-section__title").text
         year = (
             driver.find_element(By.CLASS_NAME, "CitationCoverDate")
             .text.strip()
@@ -86,10 +87,17 @@ def dl(url: str = "", folder: str = ""):
 
     QproDefaultStatus.update("正在查询论文哈希值")
     driver.get(rt_url)
+    if auto_login:
+        QproDefaultStatus.update("正在自动登录")
+        driver.switch_to.frame("loginIframe")
+        inputs = driver.find_elements(By.TAG_NAME, "input")
+        inputs[0].send_keys(config.select("username"))
+        inputs[1].send_keys(config.select("password"))
+
+        driver.find_element(By.CLASS_NAME, "login_btn").click()
+        driver.switch_to.default_content()
+
     js = f'return encrypUrl("https", "{url}")'
-
-    time.sleep(3)
-
     url_hash = re.findall("https/(.*?)/", driver.execute_script(js))[0]
 
     part_url = (
@@ -98,8 +106,6 @@ def dl(url: str = "", folder: str = ""):
         else f"https/{url_hash}/stamp/stamp.jsp?tp=&arnumber={arnumber}"
     )
 
-    QproDefaultStatus.update("关闭浏览器")
-    closeDriver()
     QproDefaultStatus.update("下载论文")
 
     if not folder:
@@ -115,17 +121,20 @@ def dl(url: str = "", folder: str = ""):
 
     path = os.path.join(year_dir, f"{title.replace('/', '-')}.pdf")
 
-    try:
-        requirePackage(
-            "QuickStart_Rhy.NetTools.NormalDL", "normal_dl", "QuickStart_Rhy"
-        )(f"{rt_url}/{part_url}", path)
+    # PDF文件链接：f"{rt_url}/{part_url}"，保存路径：path
+    # 通过 selenium 打开浏览器下载 PDF 文件
 
-        QproDefaultConsole.print(QproInfoString, f'下载完成: "{path}"')
-    except Exception as e:
-        QproDefaultStatus.stop()
-        QproDefaultConsole.print(QproErrorString, e)
-        QproDefaultConsole.print(QproInfoString, f"{rt_url}/{part_url}")
-        return
+    driver.get(f"{rt_url}/{part_url}")
+    QproDefaultStatus.update("等待下载完成")
+    time.sleep(1.5)
+    QproDefaultStatus.update("关闭浏览器")
+    closeDriver()
+    local_path = os.path.join(user_root, "Downloads", f"{part_url.split('/')[-1]}.pdf")
+    if not os.path.exists(local_path):
+        raise FileNotFoundError("文件不存在")
+    requirePackage("shutil", "move")(local_path, path)
+
+    QproDefaultConsole.print(QproInfoString, f'文件已保存到: "{path}"')
     QproDefaultStatus.stop()
 
 

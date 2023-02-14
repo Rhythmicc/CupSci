@@ -83,27 +83,21 @@ def getLocalDriver():
 
     if _driver is None:
         options = webdriver.ChromeOptions()
-        # options.add_argument("--headless")
+        # 设置PDF文件直接下载
+        options.add_experimental_option(
+            "prefs",
+            {
+                "plugins.always_open_pdf_externally": True,
+                "download.default_directory": os.path.join(user_root, "Downloads"),
+            },
+        )
+
         _driver = webdriver.Chrome(options=options)
     return _driver
 
 
-def getRemoteDriver():
-    global _driver
-
-    if _driver is None:
-        _driver = webdriver.Remote(
-            command_executor=config.select("remote_url"),
-            desired_capabilities=webdriver.DesiredCapabilities.CHROME,
-        )
-    return _driver
-
-
 def getDriver():
-    if config.select("remote_url"):
-        return getRemoteDriver()
-    else:
-        return getLocalDriver()
+    return getLocalDriver()
 
 
 def closeDriver():

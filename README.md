@@ -12,14 +12,15 @@ pip3 install git+https://github.com/Rhythmicc/CupSci.git -U
 
 ### 初次运行会引导配置
 
+请在开始前，将 Chrome 浏览器中的 “PDF 文档” 选项设置为 “下载 PDF 文件”
+
+![](https://cos.rhythmlian.cn/ImgBed/b3630cfb4aee0e8aefc088e0cef81dd8.png)
+
 ```shell
-cup-sci --help
+cup-sci
 ```
 
-1. remote_url 表示远程的 selenium 服务 URL，没有可以不填
-   - 格式 1：`http://<用户名>:<密码>@<ip或域名>:<端口>/wd/hub`
-   - 格式 2: `http://<ip或域名>:<端口>/wd/hub`
-2. work_path 表示论文下载的文件夹，本工具会按照`会议 > 年份 > 文章` 自动组织下载。（记得填写绝对路径）
+work_path 表示论文下载的文件夹，本工具会按照`会议/期刊 > 年份 > 文章` 自动组织下载。（记得填写绝对路径）
 
 ### 通过论文链接下载论文
 
@@ -28,4 +29,4 @@ cup-sci dl
 ```
 
 论文链接比如：`https://doi.org/10.1145/3470496.3527432`
-暂时只支持 ACM 和 IEEE 两个网站（因为我暂时还用不到别的）
+暂时只支持 ACM 和 IEEE 两个网站（因为我暂时还用不到别的），会议可以识别准

@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
-VERSION = "0.0.2"
+VERSION = "0.0.3"
 
 setup(
     name=name,
@@ -18,7 +18,7 @@ setup(
     ],
     keywords="CUP Web VPN selenium",
     author="RhythmLian",
-    url="https://github.com/Rhythmicc/CupSci",
+    url=f"https://github.com/Rhythmicc/{name}",
     license="MIT",
     packages=find_packages(),
     include_package_data=True,
@@ -26,7 +26,7 @@ setup(
     install_requires=["Qpro", "selenium", "QuickStart_Rhy"],
     entry_points={
         "console_scripts": [
-            f"{executable_name} = CupSci.main:main",
+            f"{executable_name} = {name}.main:main",
         ]
     },
 )
