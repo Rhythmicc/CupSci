@@ -25,13 +25,16 @@ def getUrl():
 
 
 @app.command()
-def dl(url: str = "", folder: str = "", auto_login: bool = False):
+def dl(
+    url: str = "", folder: str = "", auto_login: bool = False, auto_open: bool = False
+):
     """
     下载论文
 
     :param url: 论文链接
     :param folder: 保存目录
     :param auto_login: 自动登录
+    :param auto_open: 自动打开
     """
     import re
     import time
@@ -98,6 +101,7 @@ def dl(url: str = "", folder: str = "", auto_login: bool = False):
         driver.switch_to.default_content()
 
     js = f'return encrypUrl("https", "{url}")'
+    time.sleep(3)  # 等待JS加载完成
     url_hash = re.findall("https/(.*?)/", driver.execute_script(js))[0]
 
     part_url = (
@@ -135,6 +139,9 @@ def dl(url: str = "", folder: str = "", auto_login: bool = False):
     requirePackage("shutil", "move")(local_path, path)
 
     QproDefaultConsole.print(QproInfoString, f'文件已保存到: "{path}"')
+    if auto_open:
+        QproDefaultStatus.update("正在打开文件")
+
     QproDefaultStatus.stop()
 
 
