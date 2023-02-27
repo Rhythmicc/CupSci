@@ -76,10 +76,16 @@ def dl(
     else:
         QproDefaultStatus.update("正在解析IEEE论文信息")
         arnumber = url.split("/")[-1]
-        title = driver.find_element(
-            By.XPATH,
-            '//*[@id="LayoutWrapper"]/div/div/div/div[3]/div/xpl-root/div/xpl-document-details/div/div[1]/section[2]/div/xpl-document-header/section/div[2]/div/div/div[1]/div/div[1]/h1/span',
-        ).text
+        try:
+            title = driver.find_element(
+                By.XPATH,
+                '//*[@id="LayoutWrapper"]/div/div/div/div[3]/div/xpl-root/div/xpl-document-details/div/div[1]/section[2]/div/xpl-document-header/section/div[2]/div/div/div[1]/div/div[1]/h1/span',
+            ).text
+        except:
+            title = driver.find_element(
+                By.XPATH,
+                '//*[@id="LayoutWrapper"]/div/div/div[3]/div/xpl-root/div/xpl-document-details/div/div[1]/section[2]/div/xpl-document-header/section/div[2]/div/div/div[1]/div/div[1]/h1/span',
+            ).text
         _info = (
             driver.find_element(By.CLASS_NAME, "stats-document-abstract-publishedIn")
             .find_element(By.TAG_NAME, "a")
@@ -107,7 +113,7 @@ def dl(
     part_url = (
         f"https/{url_hash}/doi/pdf/{doi}"
         if is_acm_paper
-        else f"https/{url_hash}/stamp/stamp.jsp?tp=&arnumber={arnumber}"
+        else f"https/{url_hash}/stampPDF/getPDF.jsp?tp=&arnumber={arnumber}&ref="
     )
 
     QproDefaultStatus.update("下载论文")
@@ -129,11 +135,26 @@ def dl(
     # 通过 selenium 打开浏览器下载 PDF 文件
 
     driver.get(f"{rt_url}/{part_url}")
+
     QproDefaultStatus.update("等待下载完成")
-    time.sleep(1.5)
+    import re
+    from . import _ask
+
+    time.sleep(3)
+    guess_filepath = re.sub("[^a-zA-Z-]", "_", title).replace("__", "_")
+    while (file_name := _ask(
+        {
+            "type": "list",
+            "message": "请选择文件名",
+            "choices": [i for i in os.listdir(os.path.join(user_root, "Downloads")) if i.endswith(".pdf")] + ['-1'],
+            "default": f"{guess_filepath}.pdf" if os.path.exists(os.path.join(user_root, "Downloads", f"{guess_filepath}.pdf")) else None,
+        }
+    )) == "-1":
+        time.sleep(3)
+        continue
     QproDefaultStatus.update("关闭浏览器")
     closeDriver()
-    local_path = os.path.join(user_root, "Downloads", f"{part_url.split('/')[-1]}.pdf")
+    local_path = os.path.join(user_root, "Downloads", file_name)
     if not os.path.exists(local_path):
         raise FileNotFoundError("文件不存在")
     requirePackage("shutil", "move")(local_path, path)
